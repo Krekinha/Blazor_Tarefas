@@ -1,9 +1,4 @@
-﻿@inject IJSRuntime js
-
-
-<h1>@Titulo</h1>
-
-
+﻿<h1>@Titulo</h1>
 
 <table class="table">
     <thead>
@@ -34,6 +29,13 @@
     </div>
 }
 
+<Confirma @ref="confirmacao" 
+          onCancela="CancelaConfirmacao"
+          onConfirma="RemoverTarefaConfirmacao">
+
+    <div>Deseja excluir essa tarefa?</div>
+</Confirma>
+
 
 
 @code{
@@ -47,8 +49,13 @@
     private string novaTarefa = "";
     static int totalTarefas = 0;
 
+    //instancia do componente Confirm
+    Confirma confirmacao;
 
-    async void AdicionarNovaTarefa()
+    Tarefa tarefaRemover;
+
+
+    private void AdicionarNovaTarefa()
     {
         if (!string.IsNullOrWhiteSpace(novaTarefa))
         {
@@ -62,23 +69,28 @@
             totalTarefas = tarefas.Count();
 
             //await js.InvokeVoidAsync("getTotalTarefas");
-            await js.InvokeAsync<int>("getTotalTarefasInstancia", DotNetObjectReference.Create(this));
+            //await js.InvokeAsync<int>("getTotalTarefasInstancia", DotNetObjectReference.Create(this));
         }
     }
 
-    private async Task RemoveTarefa(Tarefa tarefa)
+    void RemoveTarefa(Tarefa tarefa)
     {
-        //tarefas.Remove(tarefas.First(x => x.ID == tarefa.ID));
+        confirmacao.Exibir();
+        tarefaRemover = tarefa;
 
-        var resultado = await js.InvokeAsync<bool>("confirm", "Excluir Tarefa?");
+    }
 
-        if (resultado)
-        {
-            tarefas.Remove(tarefa);
-            //await js.InvokeVoidAsync("alert", "Tarefa excluida com sucesso");
-            await js.InvokeAsync<object>("MostraAlerta", "Ok, tarefa excluida");
-        }
+    void RemoverTarefaConfirmacao()
+    {
+        tarefas.Remove(tarefaRemover);
+        tarefaRemover = null;
+        confirmacao.Ocultar();
+    }
 
+    void CancelaConfirmacao()
+    {
+        confirmacao.Ocultar();
+        tarefaRemover = null;
     }
 
     [JSInvokable]
