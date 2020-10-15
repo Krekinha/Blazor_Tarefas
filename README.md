@@ -1,2 +1,2 @@
 # Blazor_Tarefas
-Blazor project started on the macoratti course
+Aplicação front-end single page Blazor. Implementação da parte lógica do lado do cliente
